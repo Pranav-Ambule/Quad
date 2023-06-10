@@ -18,7 +18,7 @@ const AppProvider =({children})=>{
             if(data.length!== 0){
                 setisLoading(false);
                 setmovie(data);
-                console.log(data);
+                // console.log(data);
             }
             else{
                 console.log("khali hai");

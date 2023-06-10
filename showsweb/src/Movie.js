@@ -1,110 +1,182 @@
 import React from 'react'
 import { useState, useEffect } from "react";
-import { useParams } from "react-router";
-// import { useGlobalContext } from "./Context";
+import { useParams, NavLink } from "react-router-dom";
+
 
 import { API_URL, useGlobalContext } from './Context';
+// const { movie } = useGlobalContext();
 
-console.log("7");
 const Movie = () => {
-  const { id , score } = useParams();
-  const iid=id;
-  // const { movie } = useGlobalContext();
+  const { id, score } = useParams();
+  const iid = id;
   const [url, seturl] = useState("");
-  // const [id, setid] = useState("");
-  const [type, settype] = useState("");
-  
+  // const [type, settype] = useState("");
   const [isLoading, setisLoading] = useState(true);
-  // const [movie, setmovie] = useState("");
-  const [temp, settemp] = useState();
+  const [temp, settemp] = useState([]);
+  // let name,type,language;
 
+  const getMovies = async (url) => {
+    setisLoading(true);
 
-  const getMovies=async(url)=>{
-    // setisLoading(true);
-    try{
-        const res = await fetch(url);
-        const data= await res.json();
-        if(data.length!== 0){
-            // setisLoading(false);
-            settemp(data);
-            console.log("recieving picture",data,temp);
-        }
-        else{
-            console.log("khali hai");
-            // setisError({
-            //     show:true,
-            //     msg:data.Error
-            // })
-        }
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.length !== 0) {
+        setisLoading(false);
+        let tempo = data.filter((cur) => {
+
+          return (cur.show.id == iid)
+        })
+        // seturl(tempo.show.url);
+        settemp(tempo);
+        console.log(temp);
+        // settemp(tempo.show);
+      }
+      else {
+        console.log("Empty");
+
+      }
     }
-    catch(Error){
-        console.error(Error);
+    catch (Error) {
+      console.error(Error);
     }
-}
+  }
   useEffect(() => {
-    getMovies(`${API_URL}`);
     // setTimeout(() => {
-    //   console.log("movie",movie);
-      
-    //   let tempo=movie.filter((cur) => {
-    //     console.log(cur.score);
-    //     return (cur.score==score)
-  
-    //   })
-    //   settemp(tempo);
-  
-    //   console.log(temp);
-    // }, 5000);
-    if(temp!=undefined &&temp.length>=1){
-      console.log("Data recieieved")
+
+    getMovies(`${API_URL}`);
+
+    if (temp !== undefined) {
+      console.log("Data recieved", temp)
+
     }
+    else {
+      console.log("Data not recieved")
+
+    }
+    // }, 800);
   }, [])
 
-  console.log("temp:",temp);
-  // console.log("movie:",movie);
-  console.log("52 map wala ");
-  console.log(typeof(iid));
-  // console.log(movie.length);
-  // console.log(movie);
+  if (isLoading) {
+    return (
+      <div className='movie-section'>
+        <div className='loading'>Loading...</div>
+      </div>
+    )
+  }
 
 
+
+  console.log("Final temp:", temp);
+  // console.log("Final score:",temp.score);
 
   return (
     <>
-      
-      <div>Movie score {score} </div>
-      <div>Movie id {iid}</div>
-      <div>Movie name </div>
+      {temp.map((values) => {
+        let { name, id, image, genres, rating, summary, language } = values.show;
+        if (rating.average == null)
+          rating.average = "Not Rated";
+
+        let Sum = <div dangerouslySetInnerHTML={{ __html: summary }}></div>
+
+        // JSON.parse(genres);
+        console.log("Genres type:", typeof (genres));
+        console.log("Genres :", genres);
+
+        return (
+          <div key={id}>
+            <section className='movie-section'>
+              <div className='movie-card'>
+
+                <div className="card-content">
+                  <p className="title">{name}</p>
+                  <p className=""></p>
+                  <div className='inline-flex'>
+
+                    <span className="card-text">Genres : </span>
+                    {genres.map((genre) => {
+
+                      return (<>
+                        <div className="card-text pd"> {genre}</div>
+                      </>
+                      )
+                    })}
+                  </div>
+                  <p className="card-text">Rating : {rating.average} / 10</p>
+                  <p className="card-text">Language : {language}</p>
+                  <div className="card-text">Summary:{Sum}</div>
+                  <div className='flex'>
+                    <div id='id'>
+
+                      <NavLink to="" className="back-btn a" onClick={() => document.getElementById("id").innerHTML = `
+                  <h1><h1>
+                  <div class="text-center">
+			            <label id='title'>MOVIE SEAT RESERVATION</label>
+		              </div>
+		              <form class='form-inline selectionForm'>
+                  <div class="form-group required">
+                  <label for="name">Name:</label>
+                  <input type="text" class="form-control" id='name' placeholder="Name" required="required"/>
+                </div>
+                <div class="form-group required">
+                  <label for="seats">Number Of Seats:</label>
+                  <input type="number" id='seats' class="form-control" placeholder="1" required="required"/>
+                </div>
+                
+                <a class="back-btn a"href={}>select</a>
+                <div class="text-center">
+                  <font color="Red"><label class="error"></label></font>
+                </div>
+                </form>
+                  `}>
+                        Book Ticket
+                      </NavLink>
+                    </div>
+                    {/* <div class="text-center">
+                  <button type="button" class="back-btn a" id="submitSelection">Start Selecting</button>
+                </div> */}
+                    
+                    <NavLink to="/" className="back-btn a">
+                      Go Back
+                    </NavLink>
+                  </div>
+                </div>
+                <figure>
+                  <img src={image.original} alt=""></img>
+                </figure>
+              </div>
+            </section>
+          </div>
+        )
+      })}
     </>
   )
+
+
 }
 
 export default Movie;
 
-
-// const Movies = () => {
-//   const {movie} =useGlobalContext();
-//   // console.log(movie)
 // return (
-//   <section className='movie-page'>
-//       <div className='container grid grid-4-col'>
-
-//       {movie.map((curmovie)=>{
-//           const {name,id,image} =curmovie.show;
-//           const {score} =curmovie;
-//           return (
-//               // <NavLink to={"https://www.tvmaze.com/shows/34653/all-american"} key={curmovie.show.id}>
-//               <NavLink to={`movie/${id}/${score}`} key={score}>
-//                   <div className='card'>
-//                       <div className='card-info'>
-//                           <h2>{name}</h2>
-//                           <img src={image.medium} alt={id} />
-//                       </div>
-//                   </div>
-//               </NavLink>
-//               );
-//       })}
+//   <>
+//    <div>Movie id {iid}</div>
+//   {temp.map((values)=>{
+//     const {name,id,image} =values.show;
+//     return(
+//       <div key={id}>
+//         <section className='movie-section'>
+//           <div className='movie-card'>
+//             <figure>
+//               <img src={temp.name} alt=""></img>
+//               <div>{temp.name}</div>
+//               <div>{name}</div>
+//             </figure>
+//           </div>
+//         </section>
+//     {/* <div>Movie name {name} </div>
+//      <div>Movie id {id} </div> */}
 //       </div>
-//   </section>
+//     )
+//   })}
+//   </>
 // )
-// }
